@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smit Kanani | Developer Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Styles --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111111;
+            color: #EAEAEA;
+        }
+
+        /* --- Modal Styles --- */
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: #2d2d2d; }
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 20px;
+            border: 3px solid #2d2d2d;
+        }
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 300ms, transform 300ms; }
+
+        /* --- Terminal Styles --- */
+        .terminal {
+            font-family: 'Fira Code', monospace;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .terminal-output div, .terminal-output pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .terminal-output a, .bot-message a, .personal-links a {
+            color: #60a5fa; /* blue-400 */
+            text-decoration: underline;
+        }
+        .terminal-output a:hover, .bot-message a:hover, .personal-links a:hover {
+            color: #93c5fd; /* blue-300 */
+        }
+        .terminal-line { display: flex; align-items: center; }
+        .prompt { color: #4ade80; margin-right: 0.5rem; }
+        .cursor {
+            display: inline-block;
+            width: 0.5em;
+            height: 1.2em;
+            background-color: #4ade80;
+            animation: blink 1s step-end infinite;
+            margin-left: 0.25rem;
+        }
+        @keyframes blink {
+            from, to { background-color: transparent; }
+            50% { background-color: #4ade80; }
+        }
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #EAEAEA;
+            width: 100%;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+        .loader {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #4ade80;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Chatbot Styles --- */
+        #chat-widget {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+        #chat-button {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+        }
+        #chat-button:hover {
+            transform: scale(1.1);
+        }
+        #chat-container {
+            position: fixed;
+            bottom: 6.5rem;
+            right: 2rem;
+            width: 350px;
+            height: 500px;
+            background-color: #1a1a1a;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .chat-header {
+            background-color: #2563eb;
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .chat-message {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #2563eb;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        .bot-message {
+            background-color: #374151; /* gray-700 */
+            color: #EAEAEA;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        .chat-input-container {
+            border-top: 1px solid #333;
+            padding: 0.5rem;
+            display: flex;
+        }
+        #chat-input {
+            flex-grow: 1;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: white;
+            outline: none;
+        }
+        #chat-send {
+            background-color: #2563eb;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Main Content -->
+    <div id="main-content" class="container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
+        <!-- Header, Terminal, Portfolio Grid -->
+        <header class="text-center py-16 md:py-20">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-white">SMIT KANANI</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-400 tracking-wide">Computer Science Enthusiast</p>
+            <p class="mt-8 max-w-2xl mx-auto text-gray-300">
+                Innovative and solution-oriented developer with a passion for optimising performance and designing efficient algorithms. I thrive on solving complex challenges, particularly in C++, data structures, and system design.
+            </p>
+        </header>
+
+        <section id="terminal-section" class="mb-16 md:mb-24">
+            <div class="terminal rounded-lg w-full max-w-4xl mx-auto h-80 p-4 flex flex-col">
+                <div id="terminal-output" class="terminal-output flex-grow overflow-y-auto text-sm pr-2"></div>
+                <div class="terminal-line mt-2">
+                    <span class="prompt">smitkanani@portfolio:~$</span>
+                    <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autofocus>
+                    <span id="terminal-cursor" class="cursor"></span>
+                </div>
+            </div>
+        </section>
+
+        <main id="portfolio-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"></main>
+
+        <!-- Personal Links Section -->
+        <section class="personal-links text-center pt-12 pb-8">
+            <p class="text-gray-400 italic">Curious about my non-coding life? Stalk me here (I don't mind)...</p>
+            <div class="flex justify-center items-center gap-6 mt-4">
+                <a href="https://www.instagram.com/smitkanani55/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Instagram</a>
+                <span class="text-gray-600">|</span>
+                <a href="https://www.facebook.com/profile.php?id=100009286485843" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Facebook</a>
+            </div>
+        </section>
+
+        <footer class="text-center pb-12">
+            <p class="text-gray-500">&copy; 2025 Smit Kanani. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden modal-enter">
+        <div id="modal-content-container" class="bg-[#1a1a1a] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden">
+            <div class="w-full md:w-1/2 h-64 md:h-auto"><img id="modal-image" src="" alt="Project Image" class="w-full h-full object-cover"></div>
+            <div class="w-full md:w-1/2 p-8 md:p-10 flex flex-col modal-content overflow-y-auto">
+                <h2 id="modal-title" class="text-3xl font-bold text-white mb-4"></h2>
+                <p id="modal-description" class="text-gray-300 leading-relaxed flex-grow"></p>
+                <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="mt-8 inline-block bg-blue-600 text-white text-center font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">View Project</a>
+            </div>
+        </div>
+        <button id="close-modal" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition-colors duration-300">&times;</button>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div id="chat-widget">
+        <div id="chat-container" class="hidden" style="transform: scale(0); opacity: 0;">
+            <div class="chat-header">Chat with my AI assistant</div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Ask about my skills...">
+                <button id="chat-send">Send</button>
+            </div>
+        </div>
+        <button id="chat-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.828 8.828 0 01-4.321-.988l-3.48 1.16a.5.5 0 01-.62-.62l1.16-3.48A8.828 8.828 0 012 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM4.713 14.058A7.014 7.014 0 0010 15c3.313 0 6-2.686 6-6s-2.687-6-6-6-6 2.686-6 6c0 1.48.543 2.822 1.442 3.862l-1.03 3.09 3.09-1.03a6.953 6.953 0 001.21.136z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const projects = [
+                { id: 1, title: "Custom C++ String Class", shortName: "string", description: "Developed a custom std::string-like class in C++ from scratch...", thumbnailUrl: "https://placehold.co/600x400/1a1a1a/ffffff?text=C%2B%2B%20String", imageUrl: "https://placehold.co/800x800/1a1a1a/ffffff?text=C++_String_Class", projectUrl: "https://github.com/SmitKanani55/MyString_Implementation" },
+                { id: 2, title: "OS Scheduling Algorithms", shortName: "scheduler", description: "Implemented various CPU scheduling algorithms (FCFS, SJF, Priority Scheduling, Round Robin) using C++...", thumbnailUrl: "https://placehold.co/600x400/2b2b2b/ffffff?text=OS+Scheduler", imageUrl: "https://placehold.co/800x800/2b2b2b/ffffff?text=OS_Scheduling", projectUrl: "https://github.com/SmitKanani55/" },
+                { id: 3, title: "Notes Web App", shortName: "notes", description: "Developed a responsive and user-friendly notes-taking web application...", thumbnailUrl: "https://placehold.co/600x400/3c3c3c/ffffff?text=Notes+App", imageUrl: "https://placehold.co/800x800/3c3c3c/ffffff?text=Notes_Web_App", projectUrl: "http://linkedin.com/posts/smitkanani55_webdevelopment-nodejs-expressjs-activity-7286345962657058816-VgVt/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD_ZFVABcUJqGMor8UuI5HVKwPomPjtIalE" }
+            ];
+            const resumeData = {
+                summary: "Innovative and solution-oriented Computer Science enthusiast...",
+                projects: projects,
+                skills: { languages: "C++ (Advanced), Java (basic), HTML (Intermediate), CSS (Intermediate), JavaScript (Basic), SQL (Intermediate)", frameworks: "Next.js, Mern Stack, Tailwind CSS, Bootstrap (Beginner)" },
+                education: "B.tech in Computer Science & Engineering from Parul University (Grad. 2026, CGPA 8.00).",
+                achievements: ["Solved 300+ DSA problems...", "HackerRank certified in SQL and 5 Star in C++."],
+                certifications: [
+                    { name: "NPTEL - Computer Network and Internet Protocol", url: "#" },
+                    { name: "NPTEL - Theory of Computation", url: "#" },
+                    { name: "TATA Group - Data Visualisation", url: "#" },
+                    { name: "INFOSYS - Database and SQL", url: "#" },
+                    { name: "MTFINSTITUTE - Executive Diploma in Innovation Management", url: "#" }
+                ],
+                links: [
+                    { name: "GitHub", url: "https://github.com/SmitKanani55/" },
+                    { name: "LinkedIn", url: "https://www.linkedin.com/in/smitkanani55" },
+                    { name: "LeetCode", url: "https://leetcode.com/u/smitkanani/" },
+                    { name: "Codolio", url: "https://codolio.com/profile/8EMHe5rU/" }
+                ],
+                contact: { email: "smitbkanani@gmail.com", phone: "+91 7862909559" },
+                resumeUrl: "#" 
+            };
+
+            // --- DOM ELEMENTS ---
+            const portfolioGrid = document.getElementById('portfolio-grid');
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalLink = document.getElementById('modal-link');
+            const closeModalBtn = document.getElementById('close-modal');
+            const terminalOutput = document.getElementById('terminal-output');
+            const terminalInput = document.getElementById('terminal-input');
+            const terminalSection = document.getElementById('terminal-section');
+            const terminalCursor = document.getElementById('terminal-cursor');
+            const chatButton = document.getElementById('chat-button');
+            const chatContainer = document.getElementById('chat-container');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const chatSend = document.getElementById('chat-send');
+
+            // --- PORTFOLIO GRID & MODAL LOGIC ---
+            function renderProjects() { portfolioGrid.innerHTML = projects.map(p => `<div class="group relative rounded-xl overflow-hidden cursor-pointer shadow-lg" data-id="${p.id}"><img src="${p.thumbnailUrl}" alt="${p.title}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"><div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all duration-300"></div><div class="absolute bottom-0 left-0 p-6"><h3 class="text-2xl font-semibold text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">${p.title}</h3></div></div>`).join(''); }
+            function openModal(id) { const p = projects.find(p => p.id === id); if (!p) return; modalImage.src = p.imageUrl; modalTitle.textContent = p.title; modalDescription.textContent = p.description; modalLink.href = p.projectUrl; modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-enter-active'), 10); document.body.style.overflow = 'hidden'; }
+            function closeModal() { modal.classList.remove('modal-enter-active'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300); }
+            portfolioGrid.addEventListener('click', e => { const c = e.target.closest('.group'); if (c) openModal(parseInt(c.dataset.id)); });
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', e => e.target === modal && closeModal());
+            document.addEventListener('keydown', e => e.key === 'Escape' && !modal.classList.contains('hidden') && closeModal());
+
+            // --- TERMINAL LOGIC ---
+            const commandHistory = [];
+            let historyIndex = -1;
+            const welcomeMessage = `Welcome to my interactive portfolio!\nType 'help' to see the list of available commands.`;
+            function printToTerminal(text, isCommand = false) { const line = document.createElement('div'); if (isCommand) { line.innerHTML = `<span class="text-green-400">smitkanani@portfolio:~$</span> ${text}`; } else { line.innerHTML = text; } terminalOutput.appendChild(line); terminalOutput.scrollTop = terminalOutput.scrollHeight; }
+            async function processCommand(command) {
+                printToTerminal(command, true);
+                commandHistory.push(command);
+                historyIndex = commandHistory.length;
+                const [cmd, ...args] = command.toLowerCase().trim().split(' ');
+                switch (cmd) {
+                    case 'help': printToTerminal(`Available commands:\n  about        - Summary about me\n  projects     - My main projects\n  skills       - My technical skills\n  links        - Social & coding profiles\n  certificates - My certifications\n  resume       - Download my resume\n  contact      - My contact information\n  clear        - Clears the terminal\n  ✨ explain   - (e.g., 'explain scheduler') AI-powered explanation of a project.\n  ✨ suggest-project - Get an AI-generated project idea.`); break;
+                    case 'about': printToTerminal(resumeData.summary); break;
+                    case 'projects': printToTerminal(`Here are my projects. Use 'explain <name>' for an AI summary.\n${projects.map(p => `  - ${p.title} (use 'explain ${p.shortName}')`).join('\n')}`); break;
+                    case 'skills': printToTerminal(`Languages: ${resumeData.skills.languages}\nFrameworks: ${resumeData.skills.frameworks}`); break;
+                    case 'links': printToTerminal(`You can find me here:\n${resumeData.links.map(l => `  - ${l.name}: <a href="${l.url}" target="_blank">${l.url}</a>`).join('\n')}`); break;
+                    case 'certificates': printToTerminal(`My Certifications:\n${resumeData.certifications.map(c => `  - ${c.name}`).join('\n')}`); break;
+                    case 'contact': printToTerminal(`Email: ${resumeData.contact.email}\nPhone: ${resumeData.contact.phone}`); break;
+                    case 'resume': printToTerminal(`Downloading resume... <a href="${resumeData.resumeUrl}" download="Smit_Kanani_Resume.pdf">Click here if download doesn't start.</a>`); window.open(resumeData.resumeUrl, '_blank'); break;
+                    case 'clear': terminalOutput.innerHTML = ''; break;
+                    case 'explain': await handleExplainCommand(args.join(' ')); break;
+                    case 'suggest-project': await handleSuggestProjectCommand(); break;
+                    default: printToTerminal(`Command not found: ${command}. Type 'help' for a list of commands.`);
+                }
+            }
+            async function handleExplainCommand(projectName) {
+                if (!projectName) { printToTerminal("Please specify a project. Usage: explain <project_name>"); return; }
+                const project = projects.find(p => p.shortName.toLowerCase() === projectName);
+                if (!project) { printToTerminal(`Project '${projectName}' not found. Type 'projects' to see available projects.`); return; }
+                const loadingLine = document.createElement('div');
+                loadingLine.innerHTML = `<div class="flex items-center"><span class="loader"></span><span>Asking Gemini to explain "${project.title}"...</span></div>`;
+                terminalOutput.appendChild(loadingLine);
+                setTerminalBusy(true);
+                try {
+                    const explanation = await callGeminiAPI(`Explain the project "${project.title}" in a conversational way for a recruiter. Description: "${project.description}"`);
+                    loadingLine.innerHTML = `<pre class="text-cyan-300">${explanation}</pre>`;
+                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Sorry, there was an error getting the explanation.`; } finally { setTerminalBusy(false); }
+            }
+            async function handleSuggestProjectCommand() {
+                const loadingLine = document.createElement('div');
+                loadingLine.innerHTML = `<div class="flex items-center"><span class="loader"></span><span>Asking Gemini for a new project idea...</span></div>`;
+                terminalOutput.appendChild(loadingLine);
+                setTerminalBusy(true);
+                try {
+                    const prompt = `You are a career advisor for a talented computer science student. Based on their skills in ${resumeData.skills.languages} and ${resumeData.skills.frameworks}, suggest one new, impressive portfolio project they could build. Describe the project, the key features, and which of their skills it would highlight. Format the response nicely for a terminal.`;
+                    const suggestion = await callGeminiAPI(prompt);
+                    loadingLine.innerHTML = `<pre class="text-yellow-300">${suggestion}</pre>`;
+                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Sorry, there was an error getting a project suggestion.`; } finally { setTerminalBusy(false); }
+            }
+            function setTerminalBusy(isBusy) { terminalInput.disabled = isBusy; terminalCursor.style.display = isBusy ? 'none' : 'inline-block'; }
+            terminalInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !terminalInput.disabled) { const cmd = terminalInput.value; terminalInput.value = ''; if (cmd) processCommand(cmd); }
+                else if (e.key === 'ArrowUp' && !terminalInput.disabled) { e.preventDefault(); if (historyIndex > 0) { historyIndex--; terminalInput.value = commandHistory[historyIndex]; } }
+                else if (e.key === 'ArrowDown' && !terminalInput.disabled) { e.preventDefault(); if (historyIndex < commandHistory.length - 1) { historyIndex++; terminalInput.value = commandHistory[historyIndex]; } else { historyIndex = commandHistory.length; terminalInput.value = ''; } }
+            });
+            terminalSection.addEventListener('click', () => { if (!terminalInput.disabled) terminalInput.focus(); });
+
+            // --- CHATBOT LOGIC ---
+            let isChatOpen = false;
+            let chatHistory = [];
+            const chatbotSystemPrompt = `You are Smit Kanani's AI assistant. Answer questions based on his resume: ${JSON.stringify(resumeData)}. If the user asks for the resume, respond ONLY with the exact phrase: "[DOWNLOAD_RESUME]". Be concise and helpful.`;
+
+            function toggleChat() {
+                isChatOpen = !isChatOpen;
+                if (isChatOpen) {
+                    chatContainer.classList.remove('hidden');
+                    setTimeout(() => { chatContainer.style.transform = 'scale(1)'; chatContainer.style.opacity = '1'; }, 10);
+                    if (chatMessages.children.length === 0) { addBotMessage("Hi! I'm Smit's AI assistant. Ask me anything about his skills or experience!"); }
+                } else {
+                    chatContainer.style.transform = 'scale(0)'; chatContainer.style.opacity = '0';
+                    setTimeout(() => chatContainer.classList.add('hidden'), 300);
+                }
+            }
+            function addMessage(message, sender, isHtml = false) {
+                const messageEl = document.createElement('div');
+                messageEl.classList.add('chat-message', sender === 'user' ? 'user-message' : 'bot-message');
+                if (isHtml) { messageEl.innerHTML = message; } else { messageEl.textContent = message; }
+                chatMessages.appendChild(messageEl);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return messageEl;
+            }
+            function addBotMessage(message, isHtml = false) {
+                addMessage(message, 'bot', isHtml);
+                chatHistory.push({ role: "model", parts: [{ text: message }] });
+            }
+            async function handleChatSend() {
+                const userMessage = chatInput.value.trim();
+                if (!userMessage) return;
+                addMessage(userMessage, 'user');
+                chatInput.value = '';
+                chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+                const loadingEl = addMessage('', 'bot', true);
+                loadingEl.innerHTML = `<span class="loader"></span>`;
+                try {
+                    let botResponse = await callGeminiAPI(chatbotSystemPrompt, chatHistory);
+                    if (botResponse.includes("[DOWNLOAD_RESUME]")) {
+                        addBotMessage(`Of course! You can download Smit's resume here: <a href="${resumeData.resumeUrl}" download="Smit_Kanani_Resume.pdf">Download Resume</a>`, true);
+                        loadingEl.remove();
+                    } else {
+                        loadingEl.textContent = botResponse;
+                        chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                    }
+                } catch (error) { console.error("Chatbot API Error:", error); loadingEl.textContent = "Sorry, I'm having trouble connecting."; }
+            }
+            chatButton.addEventListener('click', toggleChat);
+            chatSend.addEventListener('click', handleChatSend);
+            chatInput.addEventListener('keydown', e => e.key === 'Enter' && handleChatSend());
+
+            // --- SHARED GEMINI API FUNCTION (SECURE) ---
+            async function callGeminiAPI(systemPrompt, conversationHistory = []) {
+                // This function now calls our own secure serverless function
+                const response = await fetch('/.netlify/functions/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        prompt: systemPrompt, 
+                        conversationHistory: conversationHistory 
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Function call failed:", errorText);
+                    throw new Error(`API request failed: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                return result.text;
+            }
+
+            // --- INITIALIZATION ---
+            renderProjects();
+            printToTerminal(welcomeMessage);
+        });
+    </script>
+</body>
+</html>
