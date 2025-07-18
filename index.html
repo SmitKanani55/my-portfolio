@@ -441,18 +441,27 @@
             chatSend.addEventListener('click', handleChatSend);
             chatInput.addEventListener('keydown', e => e.key === 'Enter' && handleChatSend());
 
-            // --- SHARED GEMINI API FUNCTION ---
-            async function callGeminiAPI(systemPrompt, conversationHistory = []) {
-                const prompt = `${systemPrompt}\n\nConversation History:\n${conversationHistory.map(m => `${m.role}: ${m.parts[0].text}`).join('\n')}\n\nNew user query:`;
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                const apiKey = ""; // Provided by environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
-                const result = await response.json();
-                if (result.candidates?.[0]?.content?.parts?.[0]?.text) { return result.candidates[0].content.parts[0].text; }
-                return "I'm not sure how to respond to that.";
-            }
+            // --- SHARED GEMINI API FUNCTION (SECURE) ---
+async function callGeminiAPI(systemPrompt, conversationHistory = []) {
+    // This function now calls our own secure serverless function
+    const response = await fetch('/.netlify/functions/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            prompt: systemPrompt, 
+            conversationHistory: conversationHistory 
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Function call failed:", errorText);
+        throw new Error(`API request failed: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    return result.text;
+}
 
             // --- INITIALIZATION ---
             renderProjects();
