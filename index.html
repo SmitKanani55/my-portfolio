@@ -408,9 +408,9 @@
                 terminalOutput.appendChild(loadingLine);
                 setTerminalBusy(true);
                 try {
-                    const explanation = await callGeminiAPI(`Explain the project "${project.title}" in a conversational way for a recruiter. Description: "${project.description}"`);
+                    const explanation = await callGeminiAPI(`Explain the project "${project.title}" in a conversational way for a recruiter. Description: "${project.description}"`, []);
                     loadingLine.innerHTML = `<pre class="text-cyan-300">${explanation}</pre>`;
-                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Sorry, there was an error getting the explanation.`; } finally { setTerminalBusy(false); }
+                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Error: ${error.message}`; } finally { setTerminalBusy(false); }
             }
             async function handleDeepDiveCommand(projectName) {
                 if (!projectName) { printToTerminal("Please specify a project. Usage: deep-dive <project_name>"); return; }
@@ -422,9 +422,9 @@
                 setTerminalBusy(true);
                 try {
                     const prompt = `You are a senior software engineer conducting a code review. For the project '${project.title}' with the description '${project.description}', provide a concise technical breakdown. Detail the core data structures used, the most challenging algorithm implemented, and a key design decision made. Format this as a technical summary for a terminal.`;
-                    const deepDive = await callGeminiAPI(prompt);
+                    const deepDive = await callGeminiAPI(prompt, []);
                     loadingLine.innerHTML = `<pre class="text-purple-300">${deepDive}</pre>`;
-                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Sorry, there was an error getting the deep dive.`; } finally { setTerminalBusy(false); }
+                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Error: ${error.message}`; } finally { setTerminalBusy(false); }
             }
             async function handleSuggestProjectCommand() {
                 const loadingLine = document.createElement('div');
@@ -433,9 +433,9 @@
                 setTerminalBusy(true);
                 try {
                     const prompt = `You are a career advisor for a talented computer science student. Based on their skills in ${resumeData.skills.languages} and ${resumeData.skills.frameworks}, suggest one new, impressive portfolio project they could build. Describe the project, the key features, and which of their skills it would highlight. Format the response nicely for a terminal.`;
-                    const suggestion = await callGeminiAPI(prompt);
+                    const suggestion = await callGeminiAPI(prompt, []);
                     loadingLine.innerHTML = `<pre class="text-yellow-300">${suggestion}</pre>`;
-                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Sorry, there was an error getting a project suggestion.`; } finally { setTerminalBusy(false); }
+                } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Error: ${error.message}`; } finally { setTerminalBusy(false); }
             }
             function setTerminalBusy(isBusy) { terminalInput.disabled = isBusy; terminalCursor.style.display = isBusy ? 'none' : 'inline-block'; }
             
@@ -528,23 +528,43 @@
                         loadingEl.textContent = botResponse;
                         chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
                     }
-                } catch (error) { console.error("Chatbot API Error:", error); loadingEl.textContent = "Sorry, I'm having trouble connecting."; }
+                } catch (error) { 
+                    console.error("Chatbot API Error:", error); 
+                    loadingEl.textContent = `Error: ${error.message}`; 
+                }
             }
             chatButton.addEventListener('click', toggleChat);
             chatSend.addEventListener('click', handleChatSend);
             chatInput.addEventListener('keydown', e => e.key === 'Enter' && handleChatSend());
 
-            // --- SHARED GEMINI API FUNCTION ---
+            // --- SHARED GEMINI API FUNCTION (SECURE) ---
             async function callGeminiAPI(systemPrompt, conversationHistory = []) {
-                const prompt = `${systemPrompt}\n\nConversation History:\n${(conversationHistory || []).map(m => `${m.role}: ${m.parts[0].text}`).join('\n')}\n\nNew user query:`;
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                const apiKey = ""; // Provided by environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
-                const result = await response.json();
-                if (result.candidates?.[0]?.content?.parts?.[0]?.text) { return result.candidates[0].content.parts[0].text; }
-                return "I'm not sure how to respond to that.";
+                // This is the only function that needs to be changed for the fix.
+                // It now provides much more detailed error messages.
+                try {
+                    const response = await fetch('/.netlify/functions/gemini', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            prompt: systemPrompt, 
+                            conversationHistory: conversationHistory 
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        // This will now show the actual error from the server, not a generic message.
+                        throw new Error(`Netlify function returned an error: ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    return result.text;
+
+                } catch (error) {
+                    console.error("Error calling the Netlify function:", error);
+                    // This will catch network errors or if the function path is wrong.
+                    throw new Error(`Could not connect to the AI assistant. Please check the Netlify deployment.`);
+                }
             }
 
             // --- Scroll Animation Logic ---
