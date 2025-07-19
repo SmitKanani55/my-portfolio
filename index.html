@@ -12,8 +12,25 @@
         /* --- General Styles --- */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111111;
+            background-color: #0a0a0a; /* Darker background */
             color: #EAEAEA;
+            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+        }
+
+        /* --- Animated Gradient Text for Header --- */
+        .animated-gradient-text {
+            background: linear-gradient(90deg, #4ade80, #60a5fa, #c084fc, #4ade80);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-animation 5s ease infinite;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* --- Modal Styles --- */
@@ -28,12 +45,23 @@
         .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
         .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 300ms, transform 300ms; }
 
-        /* --- Terminal Styles --- */
+        /* --- ✨ UPDATED: Enhanced & Animated Terminal Styles --- */
+        @keyframes terminal-glow {
+            0%   { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); } /* Green */
+            33%  { box-shadow: 0 0 25px rgba(96, 165, 250, 0.5), 0 0 10px rgba(96, 165, 250, 0.3); } /* Blue */
+            66%  { box-shadow: 0 0 25px rgba(192, 132, 252, 0.5), 0 0 10px rgba(192, 132, 252, 0.3); } /* Purple */
+            100% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); } /* Back to Green */
+        }
         .terminal {
             font-family: 'Fira Code', monospace;
-            background-color: #1a1a1a;
+            background-color: rgba(26, 26, 26, 0.8); /* Slightly transparent */
             border: 1px solid #333;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: terminal-glow 5s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+        .terminal:hover {
+            transform: scale(1.01); /* Subtle lift on hover */
         }
         .terminal-output div, .terminal-output pre {
             white-space: pre-wrap;
@@ -42,11 +70,12 @@
         .terminal-output a, .bot-message a, .personal-links a {
             color: #60a5fa; /* blue-400 */
             text-decoration: underline;
+            transition: color 0.2s ease-in-out;
         }
         .terminal-output a:hover, .bot-message a:hover, .personal-links a:hover {
             color: #93c5fd; /* blue-300 */
         }
-        .terminal-line { display: flex; align-items: center; }
+        .terminal-line { display: flex; align-items: center; width: 100%; }
         .prompt { color: #4ade80; margin-right: 0.5rem; }
         .cursor {
             display: inline-block;
@@ -54,24 +83,112 @@
             height: 1.2em;
             background-color: #4ade80;
             animation: blink 1s step-end infinite;
-            margin-left: 2px; /* Small gap for the cursor */
+            margin-left: 2px;
         }
         @keyframes blink {
             from, to { background-color: transparent; }
             50% { background-color: #4ade80; }
         }
-        /* UPDATED: Input field styling */
         .terminal-input {
             background: transparent;
             border: none;
             color: #EAEAEA;
             outline: none;
             font-family: 'Fira Code', monospace;
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.25rem; /* text-sm */
-            width: 1ch; /* Start with a small width */
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            width: 1ch;
             padding: 0;
         }
+        
+        /* --- Project Card Scroll & Hover Effects --- */
+        .project-card {
+            background: #1a1a1a;
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        box-shadow 0.3s ease,
+                        opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .project-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .project-card:hover {
+            transform: translateY(-5px) scale(1.03); /* Combined transform */
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .project-card img {
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+        .project-card:hover img {
+            transform: scale(1.1);
+            filter: brightness(0.5);
+        }
+        .project-card .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .project-card .hover-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .project-card:hover .hover-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .project-card:hover .initial-title {
+            opacity: 0;
+        }
+        .view-project-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            color: white;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .view-project-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Pulsing & Animated Chatbot --- */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5); }
+        }
+        #chat-button {
+            animation: pulse 2.5s infinite;
+        }
+        @keyframes slide-in {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .chat-message {
+            animation: slide-in 0.4s ease-out;
+        }
+
         .loader {
             width: 1rem;
             height: 1rem;
@@ -86,99 +203,16 @@
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- Chatbot Styles --- */
-        #chat-widget {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
-        }
-        #chat-button {
-            background-color: #2563eb; /* blue-600 */
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out;
-        }
-        #chat-button:hover {
-            transform: scale(1.1);
-        }
-        #chat-container {
-            position: fixed;
-            bottom: 6.5rem;
-            right: 2rem;
-            width: 350px;
-            height: 500px;
-            background-color: #1a1a1a;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transform-origin: bottom right;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-        .chat-header {
-            background-color: #2563eb;
-            color: white;
-            padding: 1rem;
-            font-weight: bold;
-            text-align: center;
-        }
-        .chat-messages {
-            flex-grow: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        .chat-message {
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-        .user-message {
-            background-color: #2563eb;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 0;
-        }
-        .bot-message {
-            background-color: #374151; /* gray-700 */
-            color: #EAEAEA;
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
-        }
-        .chat-input-container {
-            border-top: 1px solid #333;
-            padding: 0.5rem;
-            display: flex;
-        }
-        #chat-input {
-            flex-grow: 1;
-            background-color: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            color: white;
-            outline: none;
-        }
-        #chat-send {
-            background-color: #2563eb;
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            margin-left: 0.5rem;
-            cursor: pointer;
-        }
+        #chat-widget { position: fixed; bottom: 2rem; right: 2rem; z-index: 1000; }
+        #chat-button { background-color: #2563eb; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #chat-container { position: fixed; bottom: 6.5rem; right: 2rem; width: 350px; height: 500px; background-color: #1a1a1a; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom right; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+        .chat-header { background-color: #2563eb; color: white; padding: 1rem; font-weight: bold; text-align: center; }
+        .chat-messages { flex-grow: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+        .user-message { background-color: #2563eb; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .bot-message { background-color: #374151; color: #EAEAEA; align-self: flex-start; border-bottom-left-radius: 0; }
+        .chat-input-container { border-top: 1px solid #333; padding: 0.5rem; display: flex; }
+        #chat-input { flex-grow: 1; background-color: #374151; border: 1px solid #4b5563; border-radius: 0.5rem; padding: 0.5rem; color: white; outline: none; }
+        #chat-send { background-color: #2563eb; border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; margin-left: 0.5rem; cursor: pointer; }
     </style>
 </head>
 <body class="antialiased">
@@ -187,7 +221,7 @@
     <div id="main-content" class="container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
         <!-- Header, Terminal, Portfolio Grid -->
         <header class="text-center py-16 md:py-20">
-            <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-white">SMIT KANANI</h1>
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-white animated-gradient-text">SMIT KANANI</h1>
             <p class="mt-4 text-lg md:text-xl text-gray-400 tracking-wide">Computer Science Enthusiast</p>
             <p class="mt-8 max-w-2xl mx-auto text-gray-300">
                 Innovative and solution-oriented developer with a passion for optimising performance and designing efficient algorithms. I thrive on solving complex challenges, particularly in C++, data structures, and system design.
@@ -197,16 +231,15 @@
         <section id="terminal-section" class="mb-16 md:mb-24">
             <div class="terminal rounded-lg w-full max-w-4xl mx-auto h-80 p-4 flex flex-col">
                 <div id="terminal-output" class="terminal-output flex-grow overflow-y-auto text-sm pr-2"></div>
-                <div class="terminal-line mt-2">
+                <form id="terminal-form" class="terminal-line mt-2">
                     <span class="prompt">smitkanani@portfolio:~$</span>
-                    <!-- UPDATED: Simplified HTML for the input area -->
-                    <input type="text" id="terminal-input" class="terminal-input" autocomplete="off">
+                    <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" autocapitalize="off" autocorrect="off">
                     <span id="terminal-cursor" class="cursor"></span>
-                </div>
+                </form>
             </div>
         </section>
 
-        <main id="portfolio-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"></main>
+        <main id="portfolio-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"></main>
 
         <!-- Personal Links Section -->
         <section class="personal-links text-center pt-12 pb-8">
@@ -281,6 +314,10 @@
                     { name: "Codolio", url: "https://codolio.com/profile/8EMHe5rU/" }
                 ],
                 contact: { email: "smitbkanani@gmail.com", phone: "+91 7862909559" },
+                hobbies: [
+                    "Exploring emerging AI applications and technologies",
+                    "Researching and analysing unicorn startups and their growth strategies"
+                ],
                 resumeUrl: "https://drive.google.com/uc?export=download&id=1GTJ8QzwtWTjSzILPC5rRFsSZ88SYLWyq" 
             };
 
@@ -296,6 +333,7 @@
             const terminalInput = document.getElementById('terminal-input');
             const terminalSection = document.getElementById('terminal-section');
             const terminalCursor = document.getElementById('terminal-cursor');
+            const terminalForm = document.getElementById('terminal-form');
             const chatButton = document.getElementById('chat-button');
             const chatContainer = document.getElementById('chat-container');
             const chatMessages = document.getElementById('chat-messages');
@@ -303,10 +341,23 @@
             const chatSend = document.getElementById('chat-send');
 
             // --- PORTFOLIO GRID & MODAL LOGIC ---
-            function renderProjects() { portfolioGrid.innerHTML = projects.map(p => `<div class="group relative rounded-xl overflow-hidden cursor-pointer shadow-lg" data-id="${p.id}"><img src="${p.thumbnailUrl}" alt="${p.title}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"><div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all duration-300"></div><div class="absolute bottom-0 left-0 p-6"><h3 class="text-2xl font-semibold text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">${p.title}</h3></div></div>`).join(''); }
+            function renderProjects() {
+                portfolioGrid.innerHTML = projects.map(p => `
+                    <div class="project-card cursor-pointer" data-id="${p.id}">
+                        <img src="${p.thumbnailUrl}" alt="${p.title}" class="w-full h-full object-cover">
+                        <div class="overlay">
+                            <h3 class="initial-title text-2xl font-bold text-white">${p.title}</h3>
+                        </div>
+                        <div class="hover-content">
+                            <h3 class="text-2xl font-bold text-white">${p.title}</h3>
+                            <button class="view-project-btn">View Project</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
             function openModal(id) { const p = projects.find(p => p.id === id); if (!p) return; modalImage.src = p.imageUrl; modalTitle.textContent = p.title; modalDescription.textContent = p.description; modalLink.href = p.projectUrl; modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-enter-active'), 10); document.body.style.overflow = 'hidden'; }
             function closeModal() { modal.classList.remove('modal-enter-active'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300); }
-            portfolioGrid.addEventListener('click', e => { const c = e.target.closest('.group'); if (c) openModal(parseInt(c.dataset.id)); });
+            portfolioGrid.addEventListener('click', e => { const c = e.target.closest('.project-card'); if (c) openModal(parseInt(c.dataset.id)); });
             closeModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', e => e.target === modal && closeModal());
             document.addEventListener('keydown', e => e.key === 'Escape' && !modal.classList.contains('hidden') && closeModal());
@@ -323,12 +374,13 @@
                 const [cmd, ...args] = command.toLowerCase().trim().split(' ');
                 switch (cmd) {
                     case 'help':
-                        printToTerminal(`Available commands:\n  about        - Summary about me\n  projects     - My main projects\n  skills       - My technical skills\n  links        - Social & coding profiles\n  certificates - My certifications\n  resume       - Download my resume (auto-opens new tab)\n  contact      - My contact information\n  clear        - Clears the terminal\n  ✨ explain   - (e.g., 'explain scheduler') AI-powered explanation of a project.\n  ✨ suggest-project - Get an AI-generated project idea.`);
+                        printToTerminal(`Available commands:\n  about        - Summary about me\n  projects     - My main projects\n  skills       - My technical skills\n  links        - Social & coding profiles\n  hobbies      - My personal interests\n  certificates - My certifications\n  resume       - Download my resume (auto-opens new tab)\n  contact      - My contact information\n  clear        - Clears the terminal\n  ✨ explain   - (e.g., 'explain scheduler') AI-powered explanation of a project.\n  ✨ suggest-project - Get an AI-generated project idea.`);
                         break;
                     case 'about': printToTerminal(resumeData.summary); break;
                     case 'projects': printToTerminal(`Here are my projects. Use 'explain <name>' for an AI summary.\n${projects.map(p => `  - ${p.title} (use 'explain ${p.shortName}')`).join('\n')}`); break;
                     case 'skills': printToTerminal(`Languages: ${resumeData.skills.languages}\nFrameworks: ${resumeData.skills.frameworks}`); break;
                     case 'links': printToTerminal(`You can find me here:\n${resumeData.links.map(l => `  - ${l.name}: <a href="${l.url}" target="_blank">${l.url}</a>`).join('\n')}`); break;
+                    case 'hobbies': printToTerminal(`My Hobbies & Interests:\n${resumeData.hobbies.map(h => `  - ${h}`).join('\n')}`); break;
                     case 'certificates': printToTerminal(`My Certifications:\n${resumeData.certifications.map(c => `  - ${c.name}`).join('\n')}`); break;
                     case 'contact': printToTerminal(`Email: ${resumeData.contact.email}\nPhone: ${resumeData.contact.phone}`); break;
                     case 'resume':
@@ -377,16 +429,37 @@
             }
 
             terminalInput.addEventListener('input', resizeInput);
+            
+            terminalForm.addEventListener('submit', (e) => {
+                e.preventDefault(); 
+                if (terminalInput.disabled) return;
+                const cmd = terminalInput.value; 
+                terminalInput.value = ''; 
+                resizeInput(); 
+                if (cmd) {
+                    processCommand(cmd);
+                }
+            });
 
             terminalInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !terminalInput.disabled) { 
-                    const cmd = terminalInput.value; 
-                    terminalInput.value = ''; 
+                if (e.key === 'ArrowUp' && !terminalInput.disabled) { 
+                    e.preventDefault(); 
+                    if (historyIndex > 0) { 
+                        historyIndex--; 
+                        terminalInput.value = commandHistory[historyIndex]; 
+                        resizeInput(); 
+                    } 
+                } else if (e.key === 'ArrowDown' && !terminalInput.disabled) { 
+                    e.preventDefault(); 
+                    if (historyIndex < commandHistory.length - 1) { 
+                        historyIndex++; 
+                        terminalInput.value = commandHistory[historyIndex]; 
+                    } else { 
+                        historyIndex = commandHistory.length; 
+                        terminalInput.value = ''; 
+                    } 
                     resizeInput(); 
-                    if (cmd) processCommand(cmd); 
                 }
-                else if (e.key === 'ArrowUp' && !terminalInput.disabled) { e.preventDefault(); if (historyIndex > 0) { historyIndex--; terminalInput.value = commandHistory[historyIndex]; resizeInput(); } }
-                else if (e.key === 'ArrowDown' && !terminalInput.disabled) { e.preventDefault(); if (historyIndex < commandHistory.length - 1) { historyIndex++; terminalInput.value = commandHistory[historyIndex]; } else { historyIndex = commandHistory.length; terminalInput.value = ''; } resizeInput(); }
             });
             terminalSection.addEventListener('click', () => { if (!terminalInput.disabled) terminalInput.focus(); });
 
@@ -441,33 +514,43 @@
             chatSend.addEventListener('click', handleChatSend);
             chatInput.addEventListener('keydown', e => e.key === 'Enter' && handleChatSend());
 
-            // --- SHARED GEMINI API FUNCTION (SECURE) ---
-async function callGeminiAPI(systemPrompt, conversationHistory = []) {
-    // This function now calls our own secure serverless function
-    const response = await fetch('/.netlify/functions/gemini', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            prompt: systemPrompt, 
-            conversationHistory: conversationHistory 
-        })
-    });
+            // --- SHARED GEMINI API FUNCTION ---
+            async function callGeminiAPI(systemPrompt, conversationHistory = []) {
+                const prompt = `${systemPrompt}\n\nConversation History:\n${conversationHistory.map(m => `${m.role}: ${m.parts[0].text}`).join('\n')}\n\nNew user query:`;
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const apiKey = ""; // Provided by environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+                const result = await response.json();
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) { return result.candidates[0].content.parts[0].text; }
+                return "I'm not sure how to respond to that.";
+            }
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Function call failed:", errorText);
-        throw new Error(`API request failed: ${errorText}`);
-    }
-    
-    const result = await response.json();
-    return result.text;
-}
+            // --- ✨ NEW: Scroll Animation Logic ---
+            const scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, {
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            });
+
+            function initScrollAnimations() {
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    scrollObserver.observe(card);
+                });
+            }
 
             // --- INITIALIZATION ---
             renderProjects();
             printToTerminal(welcomeMessage);
             terminalInput.focus(); // Set initial focus
             resizeInput(); // Set initial size
+            initScrollAnimations(); // Activate the scroll animations
         });
     </script>
 </body>
