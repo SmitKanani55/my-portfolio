@@ -1,26 +1,24 @@
-// This is the complete and correct code for your serverless function.
-// File location: netlify/functions/gemini.js
+// ADVANCED DEBUGGING VERSION of netlify/functions/gemini.js
 
 exports.handler = async function (event) {
-  // We only want to handle POST requests from our website
+  console.log('[Function Start] Gemini function invoked.');
+
   if (event.httpMethod !== 'POST') {
+    console.log('[Function Error] Incorrect HTTP method:', event.httpMethod);
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
-    // Get the data sent from the website's fetch request
     const { prompt, conversationHistory } = JSON.parse(event.body);
+    console.log('[Function Info] Received prompt:', prompt ? 'Yes' : 'No');
     
-    // Securely get the API key from Netlify's environment variables
     const apiKey = process.env.GEMINI_API_KEY;
-
-    // A safety check in case the API key isn't set in Netlify
     if (!apiKey) {
-      console.error('API key not found.');
+      console.error('[Function Error] CRITICAL: GEMINI_API_KEY is not set in Netlify environment variables!');
       return { statusCode: 500, body: 'API key not configured.' };
     }
+    console.log('[Function Info] API Key found.');
 
-    // Prepare the full prompt for the Gemini API
     const fullPrompt = `${prompt}\n\nConversation History:\n${(conversationHistory || []).map(m => `${m.role}: ${m.parts[0].text}`).join('\n')}\n\nNew user query:`;
     
     const payload = { 
@@ -31,34 +29,32 @@ exports.handler = async function (event) {
     };
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    // Make the request to the actual Gemini API
+    
+    console.log('[Function Info] Sending request to Google Gemini API...');
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    console.log('[Function Info] Received response from Google with status:', response.status);
 
-    // Handle errors from the Gemini API
     if (!response.ok) {
         const errorBody = await response.text();
-        console.error('Gemini API Error:', errorBody);
+        console.error('[Function Error] Gemini API responded with an error:', errorBody);
         return { statusCode: response.status, body: `API request failed: ${errorBody}` };
     }
 
     const result = await response.json();
-    
-    // Extract the text from the API's response
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm not sure how to respond to that.";
+    console.log('[Function Success] Successfully got response text from Gemini.');
 
-    // Send the safe, clean text response back to the website
     return {
       statusCode: 200,
       body: JSON.stringify({ text }),
     };
 
   } catch (error) {
-    console.error('Error in serverless function:', error);
+    console.error('[Function Error] An unexpected error occurred:', error);
     return { statusCode: 500, body: error.toString() };
   }
 };
