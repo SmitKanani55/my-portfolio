@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smit Kanani | Developer Portfolio</title>
+    <link rel="icon" type="image/jpeg" href="https://googleusercontent.com/file_content/2">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +16,51 @@
             background-color: #0a0a0a; /* Darker background */
             color: #EAEAEA;
             overflow-x: hidden; /* Prevent horizontal scroll from animations */
+        }
+
+        /* --- Preloader Styles --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0a0a;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .preloader-content {
+            font-family: 'Fira Code', monospace;
+            color: #4ade80;
+            text-align: left;
+            width: 90%;
+            max-width: 600px;
+        }
+        .preloader-line {
+            white-space: pre-wrap;
+            margin-bottom: 0.5rem;
+        }
+        .preloader-cursor {
+            display: inline-block;
+            width: 0.5em;
+            height: 1.2em;
+            background-color: #4ade80;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+        #main-content.hidden {
+            opacity: 0;
+        }
+        #main-content.visible {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
         }
 
         /* --- Animated Gradient Text for Header --- */
@@ -101,76 +147,49 @@
             padding: 0;
         }
         
-        /* --- Project Card Scroll & Hover Effects --- */
+        /* --- 3D Tilt Project Card Styles --- */
         .project-card {
             background: #1a1a1a;
             border-radius: 1rem;
             overflow: hidden;
             position: relative;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            opacity: 0;
-            transform: translateY(50px);
-            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), 
-                        box-shadow 0.3s ease,
-                        opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .project-card.is-visible {
-            opacity: 1;
-            transform: translateY(0);
+            transform-style: preserve-3d; /* Enable 3D transforms */
+            will-change: transform; /* Performance optimization */
+            transition: box-shadow 0.4s ease;
         }
         .project-card:hover {
-            transform: translateY(-5px) scale(1.03); /* Combined transform */
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .project-card .card-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(20px); /* Lift content off the card */
         }
         .project-card img {
-            transition: transform 0.4s ease, filter 0.4s ease;
-        }
-        .project-card:hover img {
-            transform: scale(1.1);
-            filter: brightness(0.5);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .project-card .overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 70%);
             padding: 1.5rem;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        .project-card .hover-content {
-            position: absolute;
-            inset: 0;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            align-items: flex-end;
+        }
+        .project-card .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%);
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .project-card:hover .hover-content {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .project-card:hover .initial-title {
-            opacity: 0;
-        }
-        .view-project-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 999px;
-            color: white;
-            font-weight: 500;
-            margin-top: 1rem;
-            transition: background-color 0.3s ease;
-        }
-        .view-project-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            transition: opacity 0.2s ease;
+            pointer-events: none;
         }
 
         /* --- Pulsing & Animated Chatbot --- */
@@ -217,8 +236,16 @@
 </head>
 <body class="antialiased">
 
-    <!-- Main Content -->
-    <div id="main-content" class="container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div id="preloader-text"></div>
+            <span class="preloader-cursor"></span>
+        </div>
+    </div>
+
+    <!-- Main Content (initially hidden) -->
+    <div id="main-content" class="hidden">
         <!-- Header, Terminal, Portfolio Grid -->
         <header class="text-center py-16 md:py-20">
             <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-white animated-gradient-text">SMIT KANANI</h1>
@@ -239,7 +266,8 @@
             </div>
         </section>
 
-        <main id="portfolio-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"></main>
+        <!-- Asymmetrical Project Grid -->
+        <main id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"></main>
 
         <!-- Personal Links Section -->
         <section class="personal-links text-center pt-12 pb-8">
@@ -290,7 +318,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- DATA ---
             const projects = [
-                { id: 1, title: "Custom C++ String Class", shortName: "string", description: "Developed a custom std::string-like class in C++ from scratch, focusing on performance. Benchmarking showed that the Copy-on-Write implementation reduced memory allocations by up to 75% in scenarios with frequent copying of unmodified strings.", thumbnailUrl: "https://placehold.co/600x400/1a1a1a/ffffff?text=C%2B%2B%20String", imageUrl: "https://placehold.co/800x800/1a1a1a/ffffff?text=C%2B%2B_String_Class", projectUrl: "https://github.com/SmitKanani55/MyString_Implementation/blob/main/MyString.cpp" },
+                // ✨ UPDATED: Project 1 is now the Data Structures project
+                { id: 1, title: "MyDataStructures: A C++ Systems Project", shortName: "datastructures", description: "A comprehensive C++ project replicating core data structures like MyString, MyLinkedList, MyStack, and MyQueue from scratch without using the STL. This project was a deep dive into dynamic memory allocation, move semantics, operator overloading, and RAII principles.", thumbnailUrl: "https://placehold.co/600x400/1a1a1a/ffffff?text=Data+Structures", imageUrl: "https://placehold.co/800x800/1a1a1a/ffffff?text=MyDataStructures", projectUrl: "https://github.com/SmitKanani55/MyDataStructures" },
                 { id: 2, title: "OS Scheduling Algorithms", shortName: "scheduler", description: "Implemented various CPU scheduling algorithms (FCFS, SJF, Priority, Round Robin) in C++. Analysis showed that for I/O-bound workloads, the Round Robin implementation reduced average waiting time by 30% compared to FCFS.", thumbnailUrl: "https://placehold.co/600x400/2b2b2b/ffffff?text=OS+Scheduler", imageUrl: "https://placehold.co/800x800/2b2b2b/ffffff?text=OS_Scheduling", projectUrl: "https://github.com/SmitKanani55/" },
                 { id: 3, title: "Notes Web App", shortName: "notes", description: "Developed a responsive and user-friendly notes-taking web application using the MERN stack. Features include real-time dynamic title editing and instant note management (create, edit, delete).", thumbnailUrl: "https://placehold.co/600x400/3c3c3c/ffffff?text=Notes+App", imageUrl: "https://placehold.co/800x800/3c3c3c/ffffff?text=Notes_Web_App", projectUrl: "http://linkedin.com/posts/smitkanani55_webdevelopment-nodejs-expressjs-activity-7286345962657058816-VgVt/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD_ZFVABcUJqGMor8UuI5HVKwPomPjtIalE" }
             ];
@@ -326,6 +355,9 @@
             };
 
             // --- DOM ELEMENTS ---
+            const preloader = document.getElementById('preloader');
+            const preloaderText = document.getElementById('preloader-text');
+            const mainContent = document.getElementById('main-content');
             const portfolioGrid = document.getElementById('portfolio-grid');
             const modal = document.getElementById('modal');
             const modalImage = document.getElementById('modal-image');
@@ -344,21 +376,51 @@
             const chatInput = document.getElementById('chat-input');
             const chatSend = document.getElementById('chat-send');
 
-            // --- PORTFOLIO GRID & MODAL LOGIC ---
+            // --- Asymmetrical Grid & 3D Tilt Logic ---
             function renderProjects() {
-                portfolioGrid.innerHTML = projects.map(p => `
-                    <div class="project-card cursor-pointer" data-id="${p.id}">
-                        <img src="${p.thumbnailUrl}" alt="${p.title}" class="w-full h-full object-cover">
-                        <div class="overlay">
-                            <h3 class="initial-title text-2xl font-bold text-white">${p.title}</h3>
+                let projectsHTML = '';
+                projects.forEach((p, index) => {
+                    const sizeClasses = (index === 0) ? 'md:col-span-2 md:row-span-2' : '';
+                    projectsHTML += `
+                        <div class="project-card cursor-pointer ${sizeClasses}" data-id="${p.id}">
+                            <div class="card-content">
+                                <img src="${p.thumbnailUrl}" alt="${p.title}" />
+                                <div class="overlay">
+                                    <h3 class="text-2xl font-bold text-white">${p.title}</h3>
+                                </div>
+                                <div class="glare"></div>
+                            </div>
                         </div>
-                        <div class="hover-content">
-                            <h3 class="text-2xl font-bold text-white">${p.title}</h3>
-                            <button class="view-project-btn">View Project</button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                });
+                portfolioGrid.innerHTML = projectsHTML;
+                init3DTilt();
             }
+
+            function init3DTilt() {
+                const cards = document.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    const glare = card.querySelector('.glare');
+                    card.addEventListener('mousemove', (e) => {
+                        const { left, top, width, height } = card.getBoundingClientRect();
+                        const x = e.clientX - left;
+                        const y = e.clientY - top;
+                        const rotateX = -1 * ((y - height / 2) / (height / 2)) * 10;
+                        const rotateY = ((x - width / 2) / (width / 2)) * 10;
+                        
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                        
+                        glare.style.opacity = '1';
+                        glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%)`;
+                    });
+
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                        glare.style.opacity = '0';
+                    });
+                });
+            }
+
             function openModal(id) { const p = projects.find(p => p.id === id); if (!p) return; modalImage.src = p.imageUrl; modalTitle.textContent = p.title; modalDescription.textContent = p.description; modalLink.href = p.projectUrl; modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('modal-enter-active'), 10); document.body.style.overflow = 'hidden'; }
             function closeModal() { modal.classList.remove('modal-enter-active'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300); }
             portfolioGrid.addEventListener('click', e => { const c = e.target.closest('.project-card'); if (c) openModal(parseInt(c.dataset.id)); });
@@ -392,7 +454,11 @@
                         printToTerminal(`Opening resume in a new tab... <a href="${resumeData.resumeUrl}" target="_blank" download="Smit_Kanani_Resume.pdf">Click here if it doesn't open.</a>`);
                         window.open(resumeData.resumeUrl, '_blank');
                         break;
-                    case 'clear': terminalOutput.innerHTML = ''; break;
+                    case 'clear':
+                        // ✨ UPDATED: Clear command now restores the welcome message
+                        terminalOutput.innerHTML = '';
+                        printToTerminal(welcomeMessage);
+                        break;
                     case 'explain': await handleExplainCommand(args.join(' ')); break;
                     case 'deep-dive': await handleDeepDiveCommand(args.join(' ')); break;
                     case 'suggest-project': await handleSuggestProjectCommand(); break;
@@ -539,8 +605,6 @@
 
             // --- SHARED GEMINI API FUNCTION (SECURE) ---
             async function callGeminiAPI(systemPrompt, conversationHistory = []) {
-                // This is the only function that needs to be changed for the fix.
-                // It now provides much more detailed error messages.
                 try {
                     const response = await fetch('/.netlify/functions/gemini', {
                         method: 'POST',
@@ -553,8 +617,8 @@
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        // This will now show the actual error from the server, not a generic message.
-                        throw new Error(`Netlify function returned an error: ${errorText}`);
+                        console.error("Function call failed:", errorText);
+                        throw new Error(`API request failed: ${errorText}`);
                     }
                     
                     const result = await response.json();
@@ -562,35 +626,60 @@
 
                 } catch (error) {
                     console.error("Error calling the Netlify function:", error);
-                    // This will catch network errors or if the function path is wrong.
                     throw new Error(`Could not connect to the AI assistant. Please check the Netlify deployment.`);
                 }
             }
 
-            // --- Scroll Animation Logic ---
-            const scrollObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
+            // --- Preloader Animation Logic ---
+            function runPreloader() {
+                const lines = [
+                    "Booting SmitOS v2.0...",
+                    "Initializing kernel...",
+                    "Loading interactive modules...",
+                    "Compiling portfolio components... [OK]",
+                    "Finalizing UI/UX enhancements...",
+                    "Welcome."
+                ];
+                let currentLine = 0;
+                
+                function typeLine() {
+                    if (currentLine < lines.length) {
+                        const lineEl = document.createElement('div');
+                        lineEl.className = 'preloader-line';
+                        preloaderText.appendChild(lineEl);
+                        
+                        let charIndex = 0;
+                        const line = lines[currentLine];
+                        
+                        function typeChar() {
+                            if (charIndex < line.length) {
+                                lineEl.textContent += line.charAt(charIndex);
+                                charIndex++;
+                                setTimeout(typeChar, 20); // Faster typing
+                            } else {
+                                currentLine++;
+                                setTimeout(typeLine, 150); // Faster delay between lines
+                            }
+                        }
+                        typeChar();
+                    } else {
+                        // Animation finished
+                        setTimeout(() => {
+                            preloader.classList.add('hidden');
+                            mainContent.classList.remove('hidden');
+                            mainContent.classList.add('visible');
+                            terminalInput.focus();
+                        }, 500); // Faster final delay
                     }
-                });
-            }, {
-                threshold: 0.1 // Trigger when 10% of the element is visible
-            });
-
-            function initScrollAnimations() {
-                const cards = document.querySelectorAll('.project-card');
-                cards.forEach(card => {
-                    scrollObserver.observe(card);
-                });
+                }
+                typeLine();
             }
 
             // --- INITIALIZATION ---
             renderProjects();
             printToTerminal(welcomeMessage);
-            terminalInput.focus(); // Set initial focus
             resizeInput(); // Set initial size
-            initScrollAnimations(); // Activate the scroll animations
+            runPreloader(); // Start the preloader
         });
     </script>
 </body>
