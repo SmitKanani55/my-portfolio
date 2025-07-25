@@ -13,9 +13,19 @@
         /* --- General Styles --- */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a; /* Darker background */
+            background-color: #0a0a0a;
             color: #EAEAEA;
-            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+            overflow-x: hidden;
+        }
+
+        /* --- 3D Canvas Container --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
         /* --- Preloader Styles --- */
@@ -30,7 +40,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         }
         #preloader.hidden {
             opacity: 0;
@@ -45,7 +55,7 @@
         }
         .preloader-line {
             white-space: pre-wrap;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
         }
         .preloader-cursor {
             display: inline-block;
@@ -60,7 +70,7 @@
         }
         #main-content.visible {
             opacity: 1;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
         }
 
         /* --- Animated Gradient Text for Header --- */
@@ -93,33 +103,33 @@
 
         /* --- Enhanced & Animated Terminal Styles --- */
         @keyframes terminal-glow {
-            0%   { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); } /* Green */
-            33%  { box-shadow: 0 0 25px rgba(96, 165, 250, 0.5), 0 0 10px rgba(96, 165, 250, 0.3); } /* Blue */
-            66%  { box-shadow: 0 0 25px rgba(192, 132, 252, 0.5), 0 0 10px rgba(192, 132, 252, 0.3); } /* Purple */
-            100% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); } /* Back to Green */
+            0%   { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); }
+            33%  { box-shadow: 0 0 25px rgba(96, 165, 250, 0.5), 0 0 10px rgba(96, 165, 250, 0.3); }
+            66%  { box-shadow: 0 0 25px rgba(192, 132, 252, 0.5), 0 0 10px rgba(192, 132, 252, 0.3); }
+            100% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3); }
         }
         .terminal {
             font-family: 'Fira Code', monospace;
-            background-color: rgba(26, 26, 26, 0.8); /* Slightly transparent */
+            background-color: rgba(26, 26, 26, 0.8);
             border: 1px solid #333;
             backdrop-filter: blur(5px);
             animation: terminal-glow 5s ease-in-out infinite;
             transition: transform 0.3s ease;
         }
         .terminal:hover {
-            transform: scale(1.01); /* Subtle lift on hover */
+            transform: scale(1.01);
         }
         .terminal-output div, .terminal-output pre {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
         .terminal-output a, .bot-message a, .personal-links a {
-            color: #60a5fa; /* blue-400 */
+            color: #60a5fa;
             text-decoration: underline;
             transition: color 0.2s ease-in-out;
         }
         .terminal-output a:hover, .bot-message a:hover, .personal-links a:hover {
-            color: #93c5fd; /* blue-300 */
+            color: #93c5fd;
         }
         .terminal-line { display: flex; align-items: center; width: 100%; }
         .prompt { color: #4ade80; margin-right: 0.5rem; }
@@ -146,7 +156,7 @@
             width: 1ch;
             padding: 0;
         }
-        
+
         /* --- 3D Tilt Project Card Styles --- */
         .project-card {
             background: #1a1a1a;
@@ -154,18 +164,18 @@
             overflow: hidden;
             position: relative;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transform-style: preserve-3d; /* Enable 3D transforms */
-            will-change: transform; /* Performance optimization */
+            transform-style: preserve-3d;
+            will-change: transform;
             transition: box-shadow 0.4s ease;
         }
         .project-card:hover {
-             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         .project-card .card-content {
             position: relative;
             width: 100%;
             height: 100%;
-            transform: translateZ(20px); /* Lift content off the card */
+            transform: translateZ(20px);
         }
         .project-card img {
             width: 100%;
@@ -236,6 +246,9 @@
 </head>
 <body class="antialiased">
 
+    <!-- 3D Background -->
+    <div id="canvas-container"></div>
+
     <!-- Preloader -->
     <div id="preloader">
         <div class="preloader-content">
@@ -246,7 +259,6 @@
 
     <!-- Main Content (initially hidden) -->
     <div id="main-content" class="hidden">
-        <!-- Header, Terminal, Portfolio Grid -->
         <header class="text-center py-16 md:py-20">
             <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-white animated-gradient-text">SMIT KANANI</h1>
             <p class="mt-4 text-lg md:text-xl text-gray-400 tracking-wide">Computer Science Enthusiast</p>
@@ -266,10 +278,8 @@
             </div>
         </section>
 
-        <!-- Asymmetrical Project Grid -->
         <main id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10"></main>
 
-        <!-- Personal Links Section -->
         <section class="personal-links text-center pt-12 pb-8">
             <p class="text-gray-400 italic">Curious about my non-coding life? Stalk me here (I don't mind)...</p>
             <div class="flex justify-center items-center gap-6 mt-4">
@@ -280,11 +290,10 @@
         </section>
 
         <footer class="text-center pb-12">
-            <p class="text-gray-500">&copy; 2025 Smit Kanani. All Rights Reserved.</p>
+            <p class="text-gray-500">© 2025 Smit Kanani. All Rights Reserved.</p>
         </footer>
     </div>
 
-    <!-- Project Modal -->
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden modal-enter">
         <div id="modal-content-container" class="bg-[#1a1a1a] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden">
             <div class="w-full md:w-1/2 h-64 md:h-auto"><img id="modal-image" src="" alt="Project Image" class="w-full h-full object-cover"></div>
@@ -294,10 +303,9 @@
                 <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="mt-8 inline-block bg-blue-600 text-white text-center font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300">View Project</a>
             </div>
         </div>
-        <button id="close-modal" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition-colors duration-300">&times;</button>
+        <button id="close-modal" class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition-colors duration-300">×</button>
     </div>
 
-    <!-- Chatbot Widget -->
     <div id="chat-widget">
         <div id="chat-container" class="hidden" style="transform: scale(0); opacity: 0;">
             <div class="chat-header">Chat with my AI assistant</div>
@@ -314,11 +322,55 @@
         </button>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 3D Scene Setup ---
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            camera.position.z = 5;
+
+            const starVertices = [];
+            for (let i = 0; i < 15000; i++) {
+                const x = THREE.MathUtils.randFloatSpread(2000);
+                const y = THREE.MathUtils.randFloatSpread(2000);
+                const z = THREE.MathUtils.randFloatSpread(2000);
+                starVertices.push(x, y, z);
+            }
+            const starGeometry = new THREE.BufferGeometry();
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({ color: 0x555555, size: 0.7 });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+            const mouse = new THREE.Vector2();
+            function onMouseMove(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            }
+            window.addEventListener('mousemove', onMouseMove);
+
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.02;
+                camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.02;
+                camera.lookAt(scene.position);
+                stars.rotation.y += 0.0001;
+                renderer.render(scene, camera);
+            }
+            animate3D();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
             // --- DATA ---
             const projects = [
-                // ✨ UPDATED: Project 1 is now the Data Structures project
                 { id: 1, title: "MyDataStructures: A C++ Systems Project", shortName: "datastructures", description: "A comprehensive C++ project replicating core data structures like MyString, MyLinkedList, MyStack, and MyQueue from scratch without using the STL. This project was a deep dive into dynamic memory allocation, move semantics, operator overloading, and RAII principles.", thumbnailUrl: "https://placehold.co/600x400/1a1a1a/ffffff?text=Data+Structures", imageUrl: "https://placehold.co/800x800/1a1a1a/ffffff?text=MyDataStructures", projectUrl: "https://github.com/SmitKanani55/MyDataStructures" },
                 { id: 2, title: "OS Scheduling Algorithms", shortName: "scheduler", description: "Implemented various CPU scheduling algorithms (FCFS, SJF, Priority, Round Robin) in C++. Analysis showed that for I/O-bound workloads, the Round Robin implementation reduced average waiting time by 30% compared to FCFS.", thumbnailUrl: "https://placehold.co/600x400/2b2b2b/ffffff?text=OS+Scheduler", imageUrl: "https://placehold.co/800x800/2b2b2b/ffffff?text=OS_Scheduling", projectUrl: "https://github.com/SmitKanani55/" },
                 { id: 3, title: "Notes Web App", shortName: "notes", description: "Developed a responsive and user-friendly notes-taking web application using the MERN stack. Features include real-time dynamic title editing and instant note management (create, edit, delete).", thumbnailUrl: "https://placehold.co/600x400/3c3c3c/ffffff?text=Notes+App", imageUrl: "https://placehold.co/800x800/3c3c3c/ffffff?text=Notes_Web_App", projectUrl: "http://linkedin.com/posts/smitkanani55_webdevelopment-nodejs-expressjs-activity-7286345962657058816-VgVt/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD_ZFVABcUJqGMor8UuI5HVKwPomPjtIalE" }
@@ -347,11 +399,7 @@
                     "Exploring emerging AI applications and technologies",
                     "Researching and analysing unicorn startups and their growth strategies"
                 ],
-                writings: [
-                    { title: "Why I Chose Copy-on-Write for my C++ String Class", url: "#" },
-                    { title: "A Deep Dive into Round Robin Scheduling", url: "#" }
-                ],
-                resumeUrl: "https://drive.google.com/uc?export=download&id=1GTJ8QzwtWTjSzILPC5rRFsSZ88SYLWyq" 
+                resumeUrl: "https://drive.google.com/uc?export=download&id=1GTJ8QzwtWTjSzILPC5rRFsSZ88SYLWyq"
             };
 
             // --- DOM ELEMENTS ---
@@ -407,9 +455,9 @@
                         const y = e.clientY - top;
                         const rotateX = -1 * ((y - height / 2) / (height / 2)) * 10;
                         const rotateY = ((x - width / 2) / (width / 2)) * 10;
-                        
+
                         card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-                        
+
                         glare.style.opacity = '1';
                         glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%)`;
                     });
@@ -440,14 +488,13 @@
                 const [cmd, ...args] = command.toLowerCase().trim().split(' ');
                 switch (cmd) {
                     case 'help':
-                        printToTerminal(`Available commands:\n  about        - Summary about me\n  projects     - My main projects\n  skills       - My technical skills\n  links        - Social & coding profiles\n  hobbies      - My personal interests\n  writings     - My blog posts and articles\n  certificates - My certifications\n  resume       - Download my resume (auto-opens new tab)\n  contact      - My contact information\n  clear        - Clears the terminal\n  ✨ explain   - Conversational project summary\n  ✨ deep-dive - Technical project breakdown\n  ✨ suggest-project - Get a new project idea`);
+                        printToTerminal(`Available commands:\n  about        - Summary about me\n  projects     - My main projects\n  skills       - My technical skills\n  links        - Social & coding profiles\n  hobbies      - My personal interests\n  certificates - My certifications\n  resume       - Download my resume (auto-opens new tab)\n  contact      - My contact information\n  clear        - Clears the terminal\n  ✨ explain   - Conversational project summary\n  ✨ deep-dive - Technical project breakdown\n  ✨ suggest-project - Get a new project idea`);
                         break;
                     case 'about': printToTerminal(resumeData.summary); break;
                     case 'projects': printToTerminal(`Here are my projects. Use 'explain <name>' or 'deep-dive <name>'.\n${projects.map(p => `  - ${p.title} (use '${p.shortName}')`).join('\n')}`); break;
                     case 'skills': printToTerminal(`Languages: ${resumeData.skills.languages}\nFrameworks: ${resumeData.skills.frameworks}`); break;
                     case 'links': printToTerminal(`You can find me here:\n${resumeData.links.map(l => `  - ${l.name}: <a href="${l.url}" target="_blank">${l.url}</a>`).join('\n')}`); break;
                     case 'hobbies': printToTerminal(`My Hobbies & Interests:\n${resumeData.hobbies.map(h => `  - ${h}`).join('\n')}`); break;
-                    case 'writings': printToTerminal(`My Articles:\n${resumeData.writings.map(w => `  - <a href="${w.url}" target="_blank">${w.title}</a>`).join('\n')}`); break;
                     case 'certificates': printToTerminal(`My Certifications:\n${resumeData.certifications.map(c => `  - ${c.name}`).join('\n')}`); break;
                     case 'contact': printToTerminal(`Email: ${resumeData.contact.email}\nPhone: ${resumeData.contact.phone}`); break;
                     case 'resume':
@@ -455,7 +502,6 @@
                         window.open(resumeData.resumeUrl, '_blank');
                         break;
                     case 'clear':
-                        // ✨ UPDATED: Clear command now restores the welcome message
                         terminalOutput.innerHTML = '';
                         printToTerminal(welcomeMessage);
                         break;
@@ -504,7 +550,7 @@
                 } catch (error) { console.error("Gemini API Error:", error); loadingLine.textContent = `Error: ${error.message}`; } finally { setTerminalBusy(false); }
             }
             function setTerminalBusy(isBusy) { terminalInput.disabled = isBusy; terminalCursor.style.display = isBusy ? 'none' : 'inline-block'; }
-            
+
             function resizeInput() {
                 const minWidth = "1ch";
                 if (terminalInput.value) {
@@ -515,36 +561,36 @@
             }
 
             terminalInput.addEventListener('input', resizeInput);
-            
+
             terminalForm.addEventListener('submit', (e) => {
-                e.preventDefault(); 
+                e.preventDefault();
                 if (terminalInput.disabled) return;
-                const cmd = terminalInput.value; 
-                terminalInput.value = ''; 
-                resizeInput(); 
+                const cmd = terminalInput.value;
+                terminalInput.value = '';
+                resizeInput();
                 if (cmd) {
                     processCommand(cmd);
                 }
             });
 
             terminalInput.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowUp' && !terminalInput.disabled) { 
-                    e.preventDefault(); 
-                    if (historyIndex > 0) { 
-                        historyIndex--; 
-                        terminalInput.value = commandHistory[historyIndex]; 
-                        resizeInput(); 
-                    } 
-                } else if (e.key === 'ArrowDown' && !terminalInput.disabled) { 
-                    e.preventDefault(); 
-                    if (historyIndex < commandHistory.length - 1) { 
-                        historyIndex++; 
-                        terminalInput.value = commandHistory[historyIndex]; 
-                    } else { 
-                        historyIndex = commandHistory.length; 
-                        terminalInput.value = ''; 
-                    } 
-                    resizeInput(); 
+                if (e.key === 'ArrowUp' && !terminalInput.disabled) {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        terminalInput.value = commandHistory[historyIndex];
+                        resizeInput();
+                    }
+                } else if (e.key === 'ArrowDown' && !terminalInput.disabled) {
+                    e.preventDefault();
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        terminalInput.value = commandHistory[historyIndex];
+                    } else {
+                        historyIndex = commandHistory.length;
+                        terminalInput.value = '';
+                    }
+                    resizeInput();
                 }
             });
             terminalSection.addEventListener('click', () => { if (!terminalInput.disabled) terminalInput.focus(); });
@@ -594,9 +640,9 @@
                         loadingEl.textContent = botResponse;
                         chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
                     }
-                } catch (error) { 
-                    console.error("Chatbot API Error:", error); 
-                    loadingEl.textContent = `Error: ${error.message}`; 
+                } catch (error) {
+                    console.error("Chatbot API Error:", error);
+                    loadingEl.textContent = `Error: ${error.message}`;
                 }
             }
             chatButton.addEventListener('click', toggleChat);
@@ -609,9 +655,9 @@
                     const response = await fetch('/.netlify/functions/gemini', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            prompt: systemPrompt, 
-                            conversationHistory: conversationHistory 
+                        body: JSON.stringify({
+                            prompt: systemPrompt,
+                            conversationHistory: conversationHistory
                         })
                     });
 
@@ -620,7 +666,7 @@
                         console.error("Function call failed:", errorText);
                         throw new Error(`API request failed: ${errorText}`);
                     }
-                    
+
                     const result = await response.json();
                     return result.text;
 
@@ -636,40 +682,37 @@
                     "Booting SmitOS v2.0...",
                     "Initializing kernel...",
                     "Loading interactive modules...",
-                    "Compiling portfolio components... [OK]",
-                    "Finalizing UI/UX enhancements...",
                     "Welcome."
                 ];
                 let currentLine = 0;
-                
+
                 function typeLine() {
                     if (currentLine < lines.length) {
                         const lineEl = document.createElement('div');
                         lineEl.className = 'preloader-line';
                         preloaderText.appendChild(lineEl);
-                        
+
                         let charIndex = 0;
                         const line = lines[currentLine];
-                        
+
                         function typeChar() {
                             if (charIndex < line.length) {
                                 lineEl.textContent += line.charAt(charIndex);
                                 charIndex++;
-                                setTimeout(typeChar, 20); // Faster typing
+                                setTimeout(typeChar, 10); // Faster typing
                             } else {
                                 currentLine++;
-                                setTimeout(typeLine, 150); // Faster delay between lines
+                                setTimeout(typeLine, 50); // Faster delay between lines
                             }
                         }
                         typeChar();
                     } else {
-                        // Animation finished
                         setTimeout(() => {
                             preloader.classList.add('hidden');
                             mainContent.classList.remove('hidden');
                             mainContent.classList.add('visible');
                             terminalInput.focus();
-                        }, 500); // Faster final delay
+                        }, 200); // Faster final delay
                     }
                 }
                 typeLine();
@@ -678,8 +721,8 @@
             // --- INITIALIZATION ---
             renderProjects();
             printToTerminal(welcomeMessage);
-            resizeInput(); // Set initial size
-            runPreloader(); // Start the preloader
+            resizeInput();
+            runPreloader();
         });
     </script>
 </body>
